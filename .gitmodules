@@ -1,0 +1,6 @@
+[submodule "drupal-rest-php"]
+	path = drupal-rest-php
+	url = https://github.com/plepe/drupal-rest-php
+[submodule "lib/drupal-rest-php"]
+	path = lib/drupal-rest-php
+	url = https://github.com/plepe/drupal-rest-php
