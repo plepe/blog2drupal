@@ -53,6 +53,7 @@ function processItem ($item) {
   while ($current) {
     if ($current->nodeName === 'link') {
       $data['field_id'] = [[ 'value' => $current->textContent ]];
+      $body = getBody($current->textContent);
     }
     if ($current->nodeName === 'category') {
       $data['field_tags'][] = [ 'target_id' => getCategory($current->textContent) ];
@@ -187,4 +188,25 @@ function createGalleryParagraph ($parent_id, $gallery) {
     'target_id' => $content['id'][0]['value'],
     'target_revision_id' => $content['revision_id'][0]['value'],
   ];
+}
+
+function getBody ($url) {
+  $body = '';
+
+  $page = new DOMDocument();
+  $page->loadHTMLFile($url);
+
+  foreach ($page->getElementsByTagName('div') as $div) {
+    if ($div->getAttribute('class') === 'entry') {
+      $current = $div->firstChild;
+
+      while ($current) {
+        $body .= $page->saveHTML($current);
+
+        $current = $current->nextSibling;
+      }
+    }
+  }
+
+  return $body;
 }
