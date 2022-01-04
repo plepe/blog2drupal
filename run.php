@@ -128,7 +128,7 @@ function parseContent ($parent_id, $text) {
         ];
       }
 
-      //$result[] = $gallery;
+      $result[] = createGalleryParagraph ($parent_id, $gallery);
     } else {
       $content .= $dom->saveHTML($current);
     }
@@ -153,6 +153,33 @@ function createTextParagraph ($parent_id, $text) {
     'parent_field_name' => [[ 'value' => 'field_content' ]],
     'field_body' => [[ 'value' => $text, 'format' => 'full_html' ]],
   ];
+
+  $content = $drupal->paragraphSave(null, $content);
+
+  return [
+    'target_id' => $content['id'][0]['value'],
+    'target_revision_id' => $content['revision_id'][0]['value'],
+  ];
+}
+
+function createGalleryParagraph ($parent_id, $gallery) {
+  global $drupal;
+
+  $content = [
+    'type' => [[ 'target_id' => 'gallery' ]],
+    'parent_type' => [[ 'value' => 'node' ]],
+    'parent_id' => [[ 'value' => $parent_id ]],
+    'parent_field_name' => [[ 'value' => 'field_content' ]],
+    'field_gallery' => [],
+  ];
+
+  foreach ($gallery as $item) {
+    $file = $drupal->fileUpload($item['url'], 'paragraph/gallery/field_gallery');
+    $content['field_gallery'][] = [
+      'target_id' => $file['fid'][0]['value'],
+      'title' => $item['title'],
+    ];
+  }
 
   $content = $drupal->paragraphSave(null, $content);
 
