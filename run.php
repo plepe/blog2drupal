@@ -105,7 +105,7 @@ function getCategory ($category) {
   $categories[$category] = $content['tid'][0]['value'];
 }
 
-function parseContent ($parent_id, $text) {
+function parseContent ($text) {
   $dom = new DOMDocument();
   $dom->loadHTML('<?xml encoding="UTF-8"><html><body>' . $text . '</body></html>');
 
@@ -116,7 +116,11 @@ function parseContent ($parent_id, $text) {
   while ($current) {
     if ($current->nodeName === 'table') {
       if (trim($content) !== '') {
-        $result[] = createTextParagraph($content);
+        $result[] = [
+          'type' => 'text_block',
+          'content' => $content,
+        ];
+
         $content = '';
       }
 
@@ -129,7 +133,10 @@ function parseContent ($parent_id, $text) {
         ];
       }
 
-      $result[] = createGalleryParagraph ($parent_id, $gallery);
+      $result[] = [
+        'type' => 'gallery',
+        'content' => $gallery,
+      ];
     } else {
       $content .= $dom->saveHTML($current);
     }
@@ -138,7 +145,27 @@ function parseContent ($parent_id, $text) {
   }
 
   if (trim($content) !== '') {
-    $result[] = createTextParagraph($parent_id, $content);
+    $result[] = [
+      'type' => 'text_block',
+      'content' => $content,
+    ];
+  }
+
+  return $result;
+}
+
+function saveContent ($parent_id, $content) {
+  $result = [];
+
+  foreach ($content as $item) {
+    switch ($item['type']) {
+      case 'text_block':
+        $result[] = createTextParagraph($parent_id, $content);
+        break;
+      case 'gallery':
+        $result[] = createGalleryParagraph ($parent_id, $gallery);
+        break;
+    }
   }
 
   return $result;
