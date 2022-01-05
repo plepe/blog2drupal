@@ -24,7 +24,9 @@ foreach ($_categories as $c) {
 $_articles = $drupal->loadRestExport('/rest/blog');
 $articles = [];
 foreach ($_articles as $c) {
-  $articles[$c['field_id'][0]['value']] = $c['nid'][0]['value'];
+  if (sizeof($c['field_id']) && $c['field_id'][0]['value']) {
+    $articles[$c['field_id'][0]['value']] = $c['nid'][0]['value'];
+  }
 }
 
 $dom = new DOMDocument();
