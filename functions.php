@@ -75,7 +75,53 @@ function parseContent ($text) {
   $content = '';
   $current = $dom->getElementsByTagName('body')->item(0)->firstChild;
   while ($current) {
-    if ($current->nodeName === 'table') {
+    if ($current->nodeName === 'style' ||
+        ($current->nodeName === 'p' && $current->getAttribute('class') === 'postmetadata alt')
+       ) {
+      // ignore
+    }
+    elseif ($current->nodeName === 'p' && $current->getElementsByTagName('img')->length) {
+      if (trim($content) !== '') {
+        $result[] = [
+          'type' => 'text_block',
+          'content' => $content,
+        ];
+
+        $content = '';
+      }
+      
+      $result[] = [
+        'type' => 'image',
+        'url' => $current->getElementsByTagName('a')->item(0)->getAttribute('href'),
+        'title' => $current->textContent,
+
+      ];
+    }
+    elseif ($current->nodeName === 'div' && $current->getAttribute('data-carousel-extra')) {
+      if (trim($content) !== '') {
+        $result[] = [
+          'type' => 'text_block',
+          'content' => $content,
+        ];
+
+        $content = '';
+      }
+
+      $gallery = [];
+      foreach ($current->getElementsByTagName('dl') as $td) {
+        $url = $td->getElementsByTagName('img')->item(0)->getAttribute('data-orig-file');
+        $gallery[] = [
+          'url' => $td->getElementsByTagName('img')->item(0)->getAttribute('data-orig-file'),
+          'title' => trim($td->getElementsByTagName('dd')->item(0)->textContent),
+        ];
+      }
+
+      $result[] = [
+        'type' => 'gallery',
+        'content' => $gallery,
+      ];
+    }
+    elseif ($current->nodeName === 'table') {
       if (trim($content) !== '') {
         $result[] = [
           'type' => 'text_block',
@@ -98,7 +144,8 @@ function parseContent ($text) {
         'type' => 'gallery',
         'content' => $gallery,
       ];
-    } else {
+    }
+    else {
       $content .= $dom->saveHTML($current);
     }
 
