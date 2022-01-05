@@ -35,7 +35,7 @@ function processItem ($item) {
 
     $data = [
       'type' => [[ 'target_id' => 'article' ]],
-      'field_content' => parseContent($id, $body),
+      'field_content' => saveContent($id, parseContent($body)),
     ];
 
     $content = $drupal->nodeSave($id, $data);
@@ -164,18 +164,22 @@ function saveContent ($parent_id, $content) {
   foreach ($content as $item) {
     switch ($item['type']) {
       case 'text_block':
-        $result[] = createTextParagraph($parent_id, $content);
+        $result[] = createTextParagraph($parent_id, $item);
         break;
       case 'gallery':
-        $result[] = createGalleryParagraph ($parent_id, $gallery);
+        $result[] = createGalleryParagraph ($parent_id, $item);
         break;
+      default:
+        print "Unknown paragraph type: ";
+        print_r($item);
+        exit(1);
     }
   }
 
   return $result;
 }
 
-function createTextParagraph ($parent_id, $text) {
+function createTextParagraph ($parent_id, $item) {
   global $drupal;
 
   $content = [
@@ -183,7 +187,7 @@ function createTextParagraph ($parent_id, $text) {
     'parent_type' => [[ 'value' => 'node' ]],
     'parent_id' => [[ 'value' => $parent_id ]],
     'parent_field_name' => [[ 'value' => 'field_content' ]],
-    'field_body' => [[ 'value' => $text, 'format' => 'full_html' ]],
+    'field_body' => [[ 'value' => $item['content'], 'format' => 'full_html' ]],
   ];
 
   $content = $drupal->paragraphSave(null, $content);
@@ -205,7 +209,7 @@ function createGalleryParagraph ($parent_id, $gallery) {
     'field_gallery' => [],
   ];
 
-  foreach ($gallery as $item) {
+  foreach ($gallery['content'] as $item) {
     $file = $drupal->fileUpload($item['url'], 'paragraph/gallery/field_gallery');
     $content['field_gallery'][] = [
       'target_id' => $file['fid'][0]['value'],
