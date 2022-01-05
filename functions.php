@@ -30,8 +30,10 @@ function processItem ($item) {
   }
 
   if (!array_key_exists($data['field_id'][0]['value'], $articles)) {
+    print "{$data['field_id'][0]['value']} -> ";
     $content = $drupal->nodeSave(null, $data);
     $id = $content['nid'][0]['value'];
+    print "{$id}\n";
 
     $data = [
       'type' => [[ 'target_id' => 'article' ]],
