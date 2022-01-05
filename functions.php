@@ -29,18 +29,14 @@ function processItem ($item) {
     $current = $current->nextSibling;
   }
 
-  //if (!array_key_exists($data['field_id'][0]['value'], $articles)) {
-  if ($data['field_id'][0]['value'] === 'http://plepe.at/252') {
-    print_r($data);
+  if (!array_key_exists($data['field_id'][0]['value'], $articles)) {
     $content = $drupal->nodeSave(null, $data);
     $id = $content['nid'][0]['value'];
-    print "SAVED\n";
 
     $data = [
       'type' => [[ 'target_id' => 'article' ]],
       'field_content' => parseContent($id, $body),
     ];
-    print_r($data);
 
     $content = $drupal->nodeSave($id, $data);
   }
