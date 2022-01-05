@@ -169,6 +169,9 @@ function saveContent ($parent_id, $content) {
       case 'gallery':
         $result[] = createGalleryParagraph ($parent_id, $item);
         break;
+      case 'image':
+        $result[] = createImageParagraph ($parent_id, $item);
+        break;
       default:
         print "Unknown paragraph type: ";
         print_r($item);
@@ -216,6 +219,30 @@ function createGalleryParagraph ($parent_id, $gallery) {
       'title' => $item['title'],
     ];
   }
+
+  $content = $drupal->paragraphSave(null, $content);
+
+  return [
+    'target_id' => $content['id'][0]['value'],
+    'target_revision_id' => $content['revision_id'][0]['value'],
+  ];
+}
+
+function createImageParagraph ($parent_id, $item) {
+  global $drupal;
+
+  $file = $drupal->fileUpload($item['url'], 'paragraph/image/field_image');
+
+  $content = [
+    'type' => [[ 'target_id' => 'image' ]],
+    'parent_type' => [[ 'value' => 'node' ]],
+    'parent_id' => [[ 'value' => $parent_id ]],
+    'parent_field_name' => [[ 'value' => 'field_content' ]],
+    'field_image' => [[
+      'target_id' => $file['fid'][0]['value'],
+      'title' => $item['title'],
+    ]],
+  ];
 
   $content = $drupal->paragraphSave(null, $content);
 
