@@ -78,6 +78,28 @@ function parseContent ($text) {
        ) {
       // ignore
     }
+    elseif ($current->nodeName === 'figure') {
+      if (trim($content) !== '') {
+        $result[] = [
+          'type' => 'text_block',
+          'content' => $content,
+        ];
+
+        $content = '';
+      }
+
+      $img = [
+        'type' => 'image',
+        'url' => $current->getElementsByTagName('img')->item(0)->getAttribute('src'),
+        'title' => $current->textContent,
+      ];
+
+      if ($current->getElementsByTagName('a')->length) {
+        $img['url'] = $current->getElementsByTagName('a')->item(0)->getAttribute('href');
+      }
+
+      $result[] = $img;
+    }
     elseif ($current->nodeName === 'p' && $current->getElementsByTagName('img')->length) {
       if (trim($content) !== '') {
         $result[] = [
