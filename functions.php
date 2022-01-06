@@ -110,9 +110,14 @@ function parseContent ($text) {
         $content = '';
       }
       
+      $url = $current->getElementsByTagName('img')->item(0)->getAttribute('src');
+      if ($current->getElementsByTagName('a')->length) {
+        $url = $current->getElementsByTagName('a')->item(0)->getAttribute('href');
+      }
+
       $result[] = [
         'type' => 'image',
-        'url' => $current->getElementsByTagName('a')->item(0)->getAttribute('href'),
+        'url' => $url,
         'title' => $current->textContent,
 
       ];
