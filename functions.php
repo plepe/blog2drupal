@@ -260,6 +260,10 @@ function createGalleryParagraph ($parent_id, $gallery) {
 function createImageParagraph ($parent_id, $item) {
   global $drupal;
 
+  if (preg_match('/\.(pdf|zip|txt)$/', $item['url'])) {
+    return createFilesParagraph($parent_id, $item);
+  }
+
   $file = $drupal->fileUpload($item['url'], 'paragraph/image/field_image');
 
   $content = [
@@ -270,6 +274,31 @@ function createImageParagraph ($parent_id, $item) {
     'field_image' => [[
       'target_id' => $file['fid'][0]['value'],
       'title' => $item['title'],
+    ]],
+  ];
+
+  $content = $drupal->paragraphSave(null, $content);
+
+  return [
+    'target_id' => $content['id'][0]['value'],
+    'target_revision_id' => $content['revision_id'][0]['value'],
+  ];
+}
+
+function createFilesParagraph ($parent_id, $item) {
+  global $drupal;
+
+  $file = $drupal->fileUpload($item['url'], 'paragraph/downloads/field_files');
+
+  $content = [
+    'type' => [[ 'target_id' => 'downloads' ]],
+    'parent_type' => [[ 'value' => 'node' ]],
+    'parent_id' => [[ 'value' => $parent_id ]],
+    'parent_field_name' => [[ 'value' => 'field_content' ]],
+    'field_files' => [[
+      'target_id' => $file['fid'][0]['value'],
+      'description' => $item['title'],
+      'display' => true,
     ]],
   ];
 
