@@ -21,11 +21,30 @@ foreach ($_categories as $c) {
   $categories[$c['name'][0]['value']] = $c['tid'][0]['value'];
 }
 
-$_articles = $drupal->loadRestExport('/rest/blog');
-$articles = [];
-foreach ($_articles as $c) {
-  if (sizeof($c['field_id']) && $c['field_id'][0]['value']) {
-    $articles[$c['field_id'][0]['value']] = $c['nid'][0]['value'];
+$nodes = $drupal->loadRestExport('/rest/content?type=topic');
+$topics = [];
+foreach ($nodes as $n) {
+  if (sizeof($n['field_short_title'])) {
+    $topics[$n['field_short_title'][0]['value']] = $n['nid'][0]['value'];
+  }
+}
+
+$cat2topic = [];
+foreach ($categories as $name => $id) {
+  if (array_key_exists($name, $topics)) {
+    $cat2topic[$id] = $topics[$name];
+  } else {
+    $content = [
+      'type' => [[ 'target_id' => 'topic' ]],
+      'title' => [[ 'value' => $name ]],
+      'field_short_title' => [[ 'value' => $name ]],
+    ];
+
+    print "{$name} -> ";
+    print_r($content);
+    //$content = $drupal->nodeSave(null, $content);
+    $cat2topic[$id] = $content['nid'][0]['value'];
+    print "{$content['nid'][0]['value']}\n";
   }
 }
 
