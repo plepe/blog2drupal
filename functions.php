@@ -282,7 +282,7 @@ function createGalleryParagraph ($parent_id, $gallery) {
 function createImageParagraph ($parent_id, $item) {
   global $drupal;
 
-  if (preg_match('/\.(pdf|zip|txt)$/', $item['url'])) {
+  if (preg_match('/\.(pdf|zip|txt)$/i', $item['url'])) {
     return createFilesParagraph($parent_id, $item);
   }
 
