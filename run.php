@@ -48,6 +48,22 @@ foreach ($categories as $name => $id) {
   }
 }
 
+$articles = $drupal->loadRestExport('/rest/content?type=article');
+//foreach ($articles as $node) {
+//  $content = [
+//    'type' => $node['type'],
+//    'field_topics' => [],
+//  ];
+//
+//  foreach ($node['field_tags'] as $tag) {
+//    $content['field_topics'][] = ['target_id' => $cat2topic[$tag['target_id']]];
+//  }
+//
+//  print "SAVE {$node['nid'][0]['value']} ";
+//  print_r($content);
+//  //$drupal->nodeSave($node['nid'][0]['value'], $content);
+//}
+
 $dom = new DOMDocument();
 $dom->loadXML(file_get_contents('http://plepe.at/feed'));
 
