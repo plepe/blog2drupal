@@ -60,21 +60,40 @@ foreach ($categories as $name => $id) {
   }
 }
 
+if ($debug) {
+  print "CAT2TOPIC\n";
+  print_r($cat2topic);
+}
+
 $articles = $drupal->loadRestExport('/rest/content?type=article');
-//foreach ($articles as $node) {
-//  $content = [
-//    'type' => $node['type'],
-//    'field_topics' => [],
-//  ];
-//
-//  foreach ($node['field_tags'] as $tag) {
-//    $content['field_topics'][] = ['target_id' => $cat2topic[$tag['target_id']]];
-//  }
-//
-//  print "SAVE {$node['nid'][0]['value']} ";
-//  print_r($content);
-//  //$drupal->nodeSave($node['nid'][0]['value'], $content);
-//}
+foreach ($articles as $node) {
+  $content = [
+    'type' => $node['type'],
+    'field_topics' => [],
+  ];
+
+  foreach ($node['field_tags'] as $tag) {
+    $content['field_topics'][] = ['target_id' => $cat2topic[$tag['target_id']]];
+  }
+
+  if (sizeof($node['field_topics']) || !sizeof($content['field_topics'])) {
+    continue;
+  }
+
+  print "TOPICS/ARTICLES {$node['nid'][0]['value']} -> ";
+
+  if ($dry_run) {
+    $content = array_merge($node, $content);
+  } else {
+    $content = $drupal->nodeSave($node['nid'][0]['value'], $content);
+  }
+
+  print "DONE\n";
+
+  if ($debug) {
+    print_r($content);
+  }
+}
 
 $dom = new DOMDocument();
 $dom->loadXML(file_get_contents('http://plepe.at/feed'));
