@@ -3,6 +3,9 @@
 require 'lib/drupal-rest-php/drupal.php';
 require 'functions.php';
 
+$dry_run = true;
+$debug = true;
+
 $drupal_conf = [
   'url' => 'https://new.plepe.at',
   'user' => 'plepe',
@@ -14,6 +17,7 @@ $drupal_conf = [
 ];
 
 $drupal = new DrupalRestAPI($drupal_conf);
+$fake_id = 0;
 
 $_categories = $drupal->loadRestExport('/rest/tags');
 $categories = [];
@@ -40,11 +44,19 @@ foreach ($categories as $name => $id) {
       'field_short_title' => [[ 'value' => $name ]],
     ];
 
-    print "{$name} -> ";
-    print_r($content);
-    //$content = $drupal->nodeSave(null, $content);
+    print "TOPIC {$name} -> ";
+
+    if ($dry_run) {
+      $content['nid'] = [['value' => 'f' . $fake_id++ ]];
+    } else {
+      $content = $drupal->nodeSave(null, $content);
+    }
     $cat2topic[$id] = $content['nid'][0]['value'];
     print "{$content['nid'][0]['value']}\n";
+
+    if ($debug) {
+      print_r($content);
+    }
   }
 }
 
