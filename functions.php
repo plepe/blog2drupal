@@ -33,7 +33,7 @@ function processItem ($item) {
     print "{$data['field_id'][0]['value']} -> ";
     $content = $drupal->nodeSave(null, $data);
     $id = $content['nid'][0]['value'];
-    print "{$id}\n";
+    print "{$id} -> ";
 
     $data = [
       'type' => [[ 'target_id' => 'article' ]],
@@ -41,6 +41,7 @@ function processItem ($item) {
     ];
 
     $content = $drupal->nodeSave($id, $data);
+    print "DONE\n";
   }
 }
 
