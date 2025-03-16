@@ -89,9 +89,12 @@ function parseContent ($text) {
         $content = '';
       }
 
+      $url = $current->getElementsByTagName('img')->item(0)->getAttribute('src');
+      $url = checkFlickr($url);
+
       $img = [
         'type' => 'image',
-        'url' => $current->getElementsByTagName('img')->item(0)->getAttribute('src'),
+        'url' => $url,
         'title' => $current->textContent,
       ];
 
@@ -113,8 +116,13 @@ function parseContent ($text) {
       
       $url = $current->getElementsByTagName('img')->item(0)->getAttribute('src');
       if ($current->getElementsByTagName('a')->length) {
-        $url = $current->getElementsByTagName('a')->item(0)->getAttribute('href');
+        $_url = $current->getElementsByTagName('a')->item(0)->getAttribute('href');
+        if (preg_match('/\.(jpg|gif|png)$/i', $url) && preg_match('/\.(jpg|gif|png)$/i', $_url)) {
+          $url = $_url;
+        }
       }
+
+      $url = checkFlickr($url);
 
       $result[] = [
         'type' => 'image',
@@ -159,7 +167,20 @@ function parseContent ($text) {
 
       $gallery = [];
       foreach ($current->getElementsByTagName('td') as $td) {
-        $url = $td->getElementsByTagName('a')->item(0)->getAttribute('href');
+        if (!$td->getElementsByTagName('img')->length) {
+          continue;
+        }
+
+        $url = $td->getElementsByTagName('img')->item(0)->getAttribute('src');
+        if ($td->getElementsByTagName('a')->length) {
+          $_url = $td->getElementsByTagName('a')->item(0)->getAttribute('href');
+          if (preg_match('/\.(jpg|gif|png)$/i', $url) && preg_match('/\.(jpg|gif|png)$/i', $_url)) {
+            $url = $_url;
+          }
+        }
+
+        $url = checkFlickr($url);
+
         $gallery[] = [
           'url' => $url,
           'title' => trim($td->textContent),
@@ -330,4 +351,19 @@ function getBody ($url) {
   }
 
   return $body;
+}
+
+function checkFlickr ($url) {
+  if (preg_match('/^https?:\/\/www.flickr.com\/photos\/splepe/', $url)) {
+    $text = file_get_contents("{$url}sizes/o/");
+    $text = implode('', explode("\n", $text));
+    preg_match('/<a href="([^"]+)">\s*Download the Original size of this photo\s*<\/a>/', $text, $m);
+    return $m[1];
+  }
+  if (preg_match('/^https?:\/\/www.flickr.com\/photos\//', $url)) {
+    print "\nWARNING REPLACING IMAGE - $url\n";
+    return '/tmp/alba_iulia_1024.JPG';
+  }
+
+  return $url;
 }
